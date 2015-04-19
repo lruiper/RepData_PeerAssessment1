@@ -1,0 +1,254 @@
+
+#Reproducible Research: Peer Assessment 1
+
+
+
+## Introduction
+
+When making public the results of an experiment, it is important to present the proccess and the resulting data in a manner that allows others to follow the same steps and check if they can obtain the same results, that is, to reproduce the experiment. In this assignment we will explore a techniche to make a research reproducible in which coding is involved. The final result will be a written in R Markdown, containing the explanation of the calculations we have done over a dataset, the code in R we have used to compute those calculations and the results we have obtained.
+
+In this assignment we will make use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day. All the calculations have been made using R, and the document has been written using R Markdown over the RStudio text editor.
+
+The first section explains how we have loaded and preprocessed the data. The second section shows the total number of steps per day using a histogram and calculates the mean and the median, ignoring the missing dates. The third section calculates the average number of steps by 5-minute intervals, again ignoring the missing values. In the fourth section we calculate the number of missing values and filled them in using the average number of steps by 5-minute intervals. We also study the impact of filling in the missing values comparing the histogram of the total steps, the mean and the median of the total steps obtained in section two and section 4. Finally, we plot the activity patterns for weekday days and weekend days in section 5.
+
+
+### Loading and preprocessing the data
+
+After downloading and unziping the data into the working directory, we load it into de project:
+
+
+```r
+activityData <- read.csv ("activity.csv", header = T, sep = ",", stringsAsFactors = F)
+```
+
+And we convert the *date* column to the date format:
+
+
+```r
+activityData$date <- as.Date(activityData$date, format = "%Y-%m-%d")
+```
+
+### What is mean total number of steps taken per day?
+
+After loading and tidying the data we now calculate the mean of the total number of steps taken per day. First of all we have to prepare a new dataset that ignores the missing data:
+
+
+```r
+dataNotMissing <- na.omit(activityData)
+```
+
+Let us check the resulting dataset by printing a little portion:
+
+
+```r
+print(dataNotMissing[1:10,])
+```
+
+```
+##     steps       date interval
+## 289     0 2012-10-02        0
+## 290     0 2012-10-02        5
+## 291     0 2012-10-02       10
+## 292     0 2012-10-02       15
+## 293     0 2012-10-02       20
+## 294     0 2012-10-02       25
+## 295     0 2012-10-02       30
+## 296     0 2012-10-02       35
+## 297     0 2012-10-02       40
+## 298     0 2012-10-02       45
+```
+
+Next we calculate the total number of steps taken by then and plot them in a histogram:
+
+
+```r
+# Compute total daily steps
+totalDailySteps <- aggregate(steps ~ date, dataNotMissing, sum)
+colnames(totalDailySteps) <- c('date','steps')
+str(totalDailySteps)
+```
+
+```
+## 'data.frame':	53 obs. of  2 variables:
+##  $ date : Date, format: "2012-10-02" "2012-10-03" ...
+##  $ steps: int  126 11352 12116 13294 15420 11015 12811 9900 10304 17382 ...
+```
+
+```r
+# Make histogram
+
+hist(totalDailySteps$steps, 
+     main=" ",
+     breaks=11,
+     col='blue',
+     xlab="Total Number of Steps Taken Daily")
+```
+
+![plot of chunk unnamed-chunk-6](figure/unnamed-chunk-6-1.png) 
+
+And we compute the mean and the median of the total daily steps:
+
+
+```r
+mean(totalDailySteps$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+median(totalDailySteps$steps)
+```
+
+```
+## [1] 10765
+```
+
+### What is the average daily activity pattern?
+
+In this section we will calculate the average of the number of steps across each 5 minute interval. This will give us an idea of the average daily activity by 5 minute intervals of the subject.
+
+First of all we calculate the average of steps by 5 minute intervals:
+
+
+```r
+averageStepsByInterval <- aggregate(steps ~ interval, dataNotMissing, mean)
+colnames(totalDailySteps) <- c('interval','steps')
+```
+
+And plot the results:
+
+
+```r
+plot(steps ~interval, data = averageStepsByInterval, type = 'l', xlab = 'Time intervals of 5 minutes', ylab = 'Average steps', main = 'Average number of steps taken in intervals of 5 minutes in a day', col = 'red')
+```
+
+![plot of chunk unnamed-chunk-9](figure/unnamed-chunk-9-1.png) 
+
+The interval with the maximum average number of steps can be calculated as follows:
+
+
+```r
+averageStepsByInterval[which.max(  
+        averageStepsByInterval$steps),]
+```
+
+```
+##     interval    steps
+## 104      835 206.1698
+```
+So the maximum average number of steps is 206 contained in the interval nº 835.
+
+### Imputing missing values
+
+There is a number of missing values that we have ignored in our calculations. In this section we will compute how many missing values there are in the original data set and we will set a strategy to fill in the missing values. After that we will show the results in a histogram.
+
+The number of missing values is:
+
+
+```r
+sum(is.na(activityData$steps))
+```
+
+```
+## [1] 2304
+```
+
+We create a new dataset identical to the original dataset and fill in the missing values using the average number of steps by interval calculated in the previous section:
+
+
+```r
+completedActivityData <- activityData
+j = 0
+for (i in 1:nrow(completedActivityData)){
+  if (is.na(completedActivityData[i, "steps"]))  {
+    completedActivityData[i, "steps"] <- averageStepsByInterval[i, "steps"]
+    j = j + 1
+  }
+  
+}
+j
+```
+
+```
+## [1] 2304
+```
+
+The total number of missing values filled in is 2304, *i.e*, the exact same number of missing values that the original data set had. 
+
+Let us calculate the total daily number of steps and show the result using a histogram: 
+
+```r
+# Compute total daily steps
+newTotalDailySteps <- aggregate(steps ~ date, completedActivityData, sum)
+colnames(totalDailySteps) <- c('date','steps')
+
+
+# Make histogram
+
+hist(newTotalDailySteps$steps, 
+     main=" ",
+     breaks=10,
+     col='blue',
+     xlab="Total Number of Steps Taken per Day Imputing Missing Values")
+```
+
+![plot of chunk unnamed-chunk-13](figure/unnamed-chunk-13-1.png) 
+
+The mean and the median are:
+
+
+```r
+mean(newTotalDailySteps$steps)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
+median(newTotalDailySteps$steps)
+```
+
+```
+## [1] 10765.59
+```
+
+This strategy does not have a significant impact on the total number of daily steps as we can see comparing the two histograms. The mean remains unaltered, while the median varies a bit, from **10765** that we get ignoring the missing values to **10765.59** that we obtain filling in the missing values with the average steps by interval.
+
+
+### Are there differences in activity patterns between weekdays and weekends?
+
+In this section we will check if there are differences in the activity patterns between weekdays and weekends using the filled-in dataset.
+
+First we have to indicate, for every observation, if it was taken in a weekday or in a weekend day:
+
+
+```r
+date <- weekdays(as.Date(completedActivityData$date))
+for (i in 1:NROW(date)){
+  
+  if(date[i] %in% c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')){
+      date[i] <- "weekday"
+  } else {
+    date[i] <- "weekend"
+  }
+}
+completedActivityData <- cbind(completedActivityData, date) 
+colnames(completedActivityData) <- c("steps", "date", "interval", "dayType")
+```
+
+Now we calculate the average of the taken steps by intervals of 5 minutes averaged across all weekdays or weekend days and plot the results:
+
+
+```r
+avgStepsByDayType <- aggregate(steps ~ dayType + interval, completedActivityData, mean)
+
+library(lattice)
+xyplot(steps ~ interval | factor(dayType), data = avgStepsByDayType, aspect = 1/2, 
+       type = "l",  main="Average Number of Steps Taken 
+       Separated Between Weekday Days and Weekend Days",)
+```
+
+![plot of chunk unnamed-chunk-16](figure/unnamed-chunk-16-1.png) 
