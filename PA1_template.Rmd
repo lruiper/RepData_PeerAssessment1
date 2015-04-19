@@ -1,5 +1,5 @@
 
-#Reproducible Research: Peer Assessment 1
+# Reproducible Research: Peer Assessment 1
 
 ```{r echo=FALSE}
 r <- Sys.setlocale("LC_TIME", "English")
@@ -184,5 +184,5 @@ avgStepsByDayType <- aggregate(steps ~ dayType + interval, completedActivityData
 library(lattice)
 xyplot(steps ~ interval | factor(dayType), data = avgStepsByDayType, aspect = 1/2, 
        type = "l",  main="Average Number of Steps Taken 
-       Separated Between Weekday Days and Weekend Days",)
+       Separated Between Weekday Days and Weekend Days")
 ```
