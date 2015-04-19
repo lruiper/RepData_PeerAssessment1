@@ -1,10 +1,11 @@
----
-title: "Reproducible Research: Peer Assessment 1"
----
-```{r echo = FALSE}
-Sys.setlocale("LC_TIME", "English")
+
+#Reproducible Research: Peer Assessment 1
+
+```{r echo=FALSE}
+r <- Sys.setlocale("LC_TIME", "English")
 ```
-# Introduction
+
+## Introduction
 
 When making public the results of an experiment, it is important to present the proccess and the resulting data in a manner that allows others to follow the same steps and check if they can obtain the same results, that is, to reproduce the experiment. In this assignment we will explore a techniche to make a research reproducible in which coding is involved. The final result will be a written in R Markdown, containing the explanation of the calculations we have done over a dataset, the code in R we have used to compute those calculations and the results we have obtained.
 
@@ -13,7 +14,7 @@ In this assignment we will make use of data from a personal activity monitoring 
 The first section explains how we have loaded and preprocessed the data. The second section shows the total number of steps per day using a histogram and calculates the mean and the median, ignoring the missing dates. The third section calculates the average number of steps by 5-minute intervals, again ignoring the missing values. In the fourth section we calculate the number of missing values and filled them in using the average number of steps by 5-minute intervals. We also study the impact of filling in the missing values comparing the histogram of the total steps, the mean and the median of the total steps obtained in section two and section 4. Finally, we plot the activity patterns for weekday days and weekend days in section 5.
 
 
-## Loading and preprocessing the data
+### Loading and preprocessing the data
 
 After downloading and unziping the data into the working directory, we load it into de project:
 
@@ -27,7 +28,7 @@ And we convert the *date* column to the date format:
 activityData$date <- as.Date(activityData$date, format = "%Y-%m-%d")
 ```
 
-## What is mean total number of steps taken per day?
+### What is mean total number of steps taken per day?
 
 After loading and tidying the data we now calculate the mean of the total number of steps taken per day. First of all we have to prepare a new dataset that ignores the missing data:
 
@@ -67,7 +68,7 @@ median(totalDailySteps$steps)
 
 ```
 
-## What is the average daily activity pattern?
+### What is the average daily activity pattern?
 
 In this section we will calculate the average of the number of steps across each 5 minute interval. This will give us an idea of the average daily activity by 5 minute intervals of the subject.
 
@@ -94,7 +95,7 @@ averageStepsByInterval[which.max(
 ```
 So the maximum average number of steps is 206 contained in the interval nº 835.
 
-## Imputing missing values
+### Imputing missing values
 
 There is a number of missing values that we have ignored in our calculations. In this section we will compute how many missing values there are in the original data set and we will set a strategy to fill in the missing values. After that we will show the results in a histogram.
 
@@ -152,7 +153,7 @@ median(newTotalDailySteps$steps)
 This strategy does not have a significant impact on the total number of daily steps as we can see comparing the two histograms. The mean remains unaltered, while the median varies a bit, from **10765** that we get ignoring the missing values to **10765.59** that we obtain filling in the missing values with the average steps by interval.
 
 
-## Are there differences in activity patterns between weekdays and weekends?
+### Are there differences in activity patterns between weekdays and weekends?
 
 In this section we will check if there are differences in the activity patterns between weekdays and weekends using the filled-in dataset.
 
